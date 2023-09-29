@@ -1,4 +1,6 @@
-
+'''
+    by Samuel Trujillo
+'''
 
 
 def winner(board, player):
