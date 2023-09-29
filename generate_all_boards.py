@@ -1,5 +1,5 @@
 '''
-    by Samuel Trujillo - 9/29 - running another test
+    by Samuel Trujillo - 9/29
 '''
 
 
