@@ -1,10 +1,9 @@
 '''
     by Samuel Trujillo - 9/29
 '''
-
+import copy
 
 def winner(board, player):
-    
     #Won across
     if board[0] == board[1] == board[2] == player:
         return True
@@ -29,53 +28,57 @@ def winner(board, player):
     
     return False
 
-
 x = 0
+c = 0 
 o = 0
-c = 0
 def main():
-    print("hello world")
-    board = ['_','_','_','_','_','_','_','_','_']
     
     '''
         innner function for easy debugging
     '''
-    def dfs(board, turn,x,c,o):
+   
+    def dfs(game, turn):
         #check if X won 
-        if winner(board,'X'):
+        if winner(game,'X'):
+            global x
             x += 1
+            return
         #check if cat scratch
-        if turn == 9 and board.count("_") == 0:
-            #print("cat scratch")
+        if turn == 9 and game.count("_") == 0:
+            global c
             c += 1
             return
         for i in range(9):
-            if board[i] == '_':
-                temp = board.copy()
+            #O's turn to go 
+            if game[i] == '_':
+                temp = copy.deepcopy(game)
                 temp[i] = 'O'
+                #if O won
                 if winner(temp, 'O'):
-                    #print("o won")
+                    global o
                     o += 1
                 else:
+                    '''
+                        This two step process makes it easier on dealing with recurison
+                    '''
                     for j in range(9):
-                        if board[j] == '_':
-                            temp_x_moves = temp.copy()
+                        if temp[j] == '_':
+                            temp_x_moves = copy.deepcopy(temp)
                             temp_x_moves[j] = 'X'
-                            x_p, o_p, c_p = x, c, o
-                            x,c,o = dfs(temp_x_moves,turn + 2, x_p, o_p,c_p)
-        return x, c, o
+                            dfs(temp_x_moves,turn + 2)
+    
+
+    board = ['_','_','_','_','_','_','_','_','_']
     for i in range(9):
-        print(f"i is {i}")
-        temp = board.copy()
+        temp = copy.deepcopy(board)
         temp[i] = 'X'
-        x,c,o = dfs(temp, 1,0,0,0)
-        print("done with {i}")
+        dfs(temp, 1)
     
     print("RESULTS ARE ")
     print("x = ", x)
     print("o = ", o)
     print("c = ", c)
-    print("total = ", x + o + c)
+    print("total = ", x + c + o)
 
 if __name__ == "__main__":
     main()
