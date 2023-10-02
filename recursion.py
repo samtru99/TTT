@@ -28,8 +28,9 @@ class Recurison:
             new_moves = list(s)
             new_moves[i] = 'X'
             new_move_recur = "".join(new_moves)
+            #print("calling find moves on ", new_move_recur)
             self.find_moves(all_moves_list,0,new_move_recur)
-        
+    
     def find_moves(self,all_moves_list, level, board):
         '''
             Base Cases
@@ -39,9 +40,11 @@ class Recurison:
         winner = Checker()
         if winner.check(board) or winner.tie(board):
             if winner.check(board):
+                #print("x won")
                 self.x_wins += 1
             else:
                 self.draws += 1
+            return
         else:
 
             '''
