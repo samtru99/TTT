@@ -52,6 +52,25 @@ class Recurison:
             '''
                 2. Generate all O's next moves
             '''
-            Q_turn = board
+            O_turn = board
             for i in range(len(board)):
-                
+                if board[i] == '_':
+                    new_move = list(O_turn)
+                    new_move[i] = 'O'
+                    new_move_str = "".join(new_move)
+                    '''
+                        3. Insert the new O move into the 1. list 
+                    '''
+                    all_moves_list[level]["".join(board)].append([new_move_str])
+                    '''
+                        4. Check if O won, if not iterativelly call all possible moves
+                        recursively
+                    '''
+                    if winner.check(new_move):
+                        self.o_wins += 1
+                    else:
+                        for new_x in range(len(new_move)):
+                            if new_move[new_x] == '_':
+                                new_x_recur = list(new_move)
+                                new_x_recur[new_x] = 'X'
+                                self.find_moves(all_moves_list,level+1,new_x_recur)
