@@ -19,10 +19,10 @@ def main():
     dataTransfer.read_in(list_of_moves)
 
 
-    epsilon = .3
-    learning_rate = .1
+    epsilon = .7
+    learning_rate = .4
     gamma = .9
-    num_of_games = 10000
+    num_of_games = 100000
     print("Training the model")
     Model = Training(epsilon, learning_rate, gamma)
     Model.train_for_q_values(num_of_games,list_of_moves)
@@ -31,7 +31,7 @@ def main():
     loss = Model.test_model(num_of_games,list_of_moves)
 
     print(f"Model lost {loss} out of {num_of_games} games")
-    print("loss rate is ", (loss / num_of_games) * 100)
+    print("loss rate is ", (loss / num_of_games) * 100, " %")
 
     print("Storing Model Data")
     dataTransfer.write_out(list_of_moves)
