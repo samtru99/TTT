@@ -22,7 +22,7 @@ class Training:
         game = Checker()
         
         #Number of games to train through
-        while num_of_games != 0:
+        while num_of_games > 0:
             won = False
             tie = False
 
@@ -32,7 +32,7 @@ class Training:
 
             board = ["_","_","_","_","_","_","_","_","_"]
             choices = [1,2,3,4,5,6,7,8,9]
-
+            #print("playing game ", num_of_games)
             while won != True and tie != True:
                 next_state = []
                 '''
@@ -47,10 +47,12 @@ class Training:
                 #Check if X won or if it's a tie
                 if game.check(board) == True:
                     #print("X won")
+                    won = True
                     reward = -1
                     break
                 if game.tie(board) == True:
                     #print("tie")
+                    tie = True
                     reward = 1
                     break
 
@@ -91,7 +93,7 @@ class Training:
                     '''
                     if len(highest_q_list) > 1:
                         ran_exploit = random.randint(0,len(highest_q_list))
-                        exploit_move = all_moves[x_play_count][x_play_str][highest_q_list[ran_exploit]][0]
+                        exploit_move = all_moves[x_play_count][x_play_str][highest_q_list[ran_exploit-1]][0]
                     else:
                         exploit_move = all_moves[x_play_count][x_play_str][highest_q_list[0]][0]
                     O_play = exploit_move
@@ -123,7 +125,7 @@ class Training:
                 x_play_count += 1
             
             self.update_q_vals(episode,reward, all_moves)
-            num_of_games += 1
+            num_of_games -= 1
 
     '''
         Episode - A Stack ADT to udate the values
@@ -159,88 +161,58 @@ class Training:
                 max_val = all_moves[dict_ct][x_move][o_play][1]
         return max_val
 
-    def test_model(self, all_moves, num_of_games):
-
+    def test_model(self, num_of_games, all_moves):
         lose = 0
         game = Checker()
-        while num_of_games != 0:
+        while num_of_games > 0:
             won = False
             tie = False
 
             x_play_count = 0
-            episode = []
-            reward = 0
 
             board = ["_","_","_","_","_","_","_","_","_"]
             choices = [1,2,3,4,5,6,7,8,9]
-
+            #print("playing game ", num_of_games)
             while won != True and tie != True:
-                next_state = []
                 '''
                     X turn
                 '''
                 val = random.randint(0, len(choices)-1)
                 position = choices[val]
                 del choices[val]
-
                 board[position-1] = 'X'
 
                 #Check if X won or if it's a tie
                 if game.check(board) == True:
-                    #print("X won")
                     lose += 1
                     break
                 if game.tie(board) == True:
                     break
 
                 #find the right dictionary and x play 
-
                 x_play_str = "".join(board)
-                next_state.append(x_play_str)
+
                 '''
-                    Exploit vs Explore
+                    -O turn, iterate through the Q-Table to find
+                    the highest Q-Vale
                 '''
-                O_play = ""
+
+                o_turn_str = ""
+
+                highest_q_val = all_moves[x_play_count][x_play_str][0][1]
+                highest_q_pos = 0
+
+                for o_play in range(1, len(all_moves[x_play_count][x_play_str])):
+                    if all_moves[x_play_count][x_play_str][o_play][1] > highest_q_val:
+                        highest_q_pos = o_play
+                        highest_q_val = all_moves[x_play_count][x_play_str][o_play][1]
                 
-                '''
-                    Explore route
-                '''
-                if random.uniform(0,1) < self.EPSILON:
-                    num_of_options = len(all_moves[x_play_count][x_play_str])
-                    explore_val = random.randint(0,num_of_options-1)
-                    O_play = all_moves[x_play_count][x_play_str][explore_val][0]
-                
-                #   Exploit 
-                else:
-                    highest_q_list = []
-                    highest_q = all_moves[x_play_count][x_play_str][0][1]
-                    highest_q_list.append(0)
-
-                    exploit_move = ""
-                    for o_play in range(1, len(all_moves[x_play_count][x_play_str])):
-                        if all_moves[x_play_count][x_play_str][o_play][1] > highest_q:
-                            highest_q_list.clear()
-                            highest_q_list.append(o_play)
-                            highest_q = all_moves[x_play_count][x_play_str][o_play][1]
-                            continue
-                        if all_moves[x_play_count][x_play_str][o_play][1] == highest_q:
-                            highest_q_list.append(o_play)
-                    '''
-                        If there are 2 or more highest equal q values, then randomly pick one
-                    '''
-                    if len(highest_q_list) > 1:
-                        ran_exploit = random.randint(0,len(highest_q_list))
-                        exploit_move = all_moves[x_play_count][x_play_str][highest_q_list[ran_exploit]][0]
-                    else:
-                        exploit_move = all_moves[x_play_count][x_play_str][highest_q_list[0]][0]
-                    O_play = exploit_move
-
-                next_state.append(O_play)
-
+                o_turn_str = all_moves[x_play_count][x_play_str][highest_q_pos][0]
                 '''
                     update the board
                 '''
-                difference_board = list(O_play)
+                #print("o_turn_str is ", o_turn_str)
+                difference_board = list(o_turn_str)
                 for diff_pos in range(len(difference_board)):
                     if difference_board[diff_pos] != board[diff_pos]:
                         for find_pos in range(len(choices)):
@@ -254,9 +226,9 @@ class Training:
                 '''
                     Check if O won
                 '''
-                if game.checks(board) == True:
+                if game.check(board) == True:
                     break
                 x_play_count += 1
-            num_of_games += 1
+            num_of_games -= 1
         return lose
             
